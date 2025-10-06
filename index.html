@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Sign Lab</title>
+  <meta name="description" content="The Sign Lab — Personalized metal signs for home decor, business, weddings and events. Custom designs, laser-cut quality." />
+  <style>
+    :root{
+      /* Palette */
+      --fluorescent-cyan:#34f6f2;
+      --non-photo-blue:#78e3fd;
+      --light-cyan:#d1f5ff;
+      --alice-blue:#eef8ff;
+      --slate-blue:#7d53de;
+
+      /* Tokens */
+      --bg: var(--alice-blue);
+      --surface:#ffffff;
+      --elev:#ffffff;
+      --text:#111827;
+      --muted:#4b5563;
+      --primary: var(--slate-blue);
+      --accent: var(--fluorescent-cyan);
+      --line:#dbe8f6;
+      --ring: 0 0 0 3px rgba(120,227,253,.35);
+      --radius:14px;
+      --header-h:74px;
+      --container:1200px;
+      --shadow: 0 10px 30px rgba(2, 12, 27, .06);
+      --shadow-hover: 0 14px 34px rgba(2, 12, 27, .10);
+    }
+
+    /* Reset and base */
+    *,*::before,*::after{box-sizing:border-box}
+    html{scroll-behavior:smooth; scroll-padding-top: calc(var(--header-h) + 16px);}
+    body{
+      margin:0;
+      font: 16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Ubuntu,"Helvetica Neue",Arial,"Noto Sans",sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 560px at 20% -10%, var(--light-cyan) 0%, transparent 65%),
+        radial-gradient(1200px 560px at 110% 10%, var(--non-photo-blue) 0%, transparent 60%),
+        var(--bg);
+      background-attachment: scroll; /* Anti-blur: was fixed */
+    }
+    img{display:block;max-width:100%;height:auto}
+    a{color:inherit;text-decoration:none}
+    .container{max-width:var(--container);margin-inline:auto;padding-inline:24px}
+    h1,h2,h3,h4{letter-spacing:-.015em}
+    .btn{
+      display:inline-flex;align-items:center;gap:.55rem;
+      padding:.82rem 1.1rem;border-radius:12px;border:1px solid transparent;
+      font-weight:700; letter-spacing:.1px; cursor:pointer; transition:.2s ease;
+      background:var(--primary); color:#fff; box-shadow: var(--shadow);
+    }
+    .btn:hover{transform:translateY(-1px); box-shadow: var(--shadow-hover)}
+    .btn.ghost{background:#fff;border-color:var(--line);color:var(--text)}
+    .btn.ghost:hover{background:#f7fbff}
+    .btn.whatsapp{background:#25D366;color:#08371a}
+    .pill{padding:.36rem .65rem;border:1px solid var(--line);background:#fff;border-radius:999px;color:var(--muted);font-size:.8rem}
+    .grid{display:grid;gap:24px}
+    .card{
+      background:var(--surface);
+      border:1px solid var(--line); border-radius:var(--radius); overflow:hidden;
+      box-shadow: var(--shadow);
+      transition: box-shadow .2s ease, transform .2s ease;
+    }
+    .card:hover{box-shadow: var(--shadow-hover); transform: translateY(-2px)}
+    .card .media{aspect-ratio: 4/3; background:#f2f8ff; overflow:hidden}
+    .card .media img{width:100%;height:100%;object-fit:cover; transition:transform .35s ease}
+    .card:hover .media img{transform:scale(1.01)} /* Anti-blur: smaller hover scale */
+    .card .body{padding:18px}
+    .card .title{font-size:1.08rem;font-weight:800;margin:0 0 .35rem}
+    .card .desc{color:var(--muted);font-size:.97rem;margin:0 0 .6rem}
+    .tag{display:inline-flex;align-items:center;gap:.4rem;font-size:.83rem;color:#445065}
+    .tag svg{width:18px;height:18px}
+
+    /* Announcement bar */
+    .bar{
+      position:relative;
+      background:linear-gradient(90deg, var(--light-cyan), var(--non-photo-blue));
+      color:#083344; text-align:center; font-weight:700; letter-spacing:.15px;
+      padding:.55rem 1rem; border-bottom:1px solid var(--line)
+    }
+    .bar small{opacity:.92}
+
+    /* Header (Anti-blur: no backdrop-filter) */
+    header.site{
+      position:fixed; z-index:1000; inset-inline:0; top:0; height:var(--header-h);
+      background: rgba(255,255,255,0.92);
+      border-bottom:1px solid var(--line);
+    }
+    .nav{
+      display:flex; align-items:center; justify-content:space-between;
+      height:var(--header-h);
+    }
+    .brand{display:flex; align-items:center; gap:.75rem; font-weight:900; letter-spacing:.2px}
+    .brand .logo{
+      width:34px;height:34px;border-radius:10px;
+      background:conic-gradient(from 210deg,var(--fluorescent-cyan),var(--slate-blue),var(--non-photo-blue),var(--fluorescent-cyan));
+      box-shadow: inset 0 0 0 2px #fff, 0 8px 18px rgba(120,227,253,.28);
+    }
+    nav ul{display:flex; gap:22px; list-style:none; margin:0; padding:0}
+    nav a{color:#3b4b66; font-weight:700}
+    nav a:hover{color:#1c2740}
+    .nav-cta{display:flex; align-items:center; gap:12px}
+    .hamb{display:none;background:none;border:0;color:var(--text);font-size:1.6rem}
+    @media (max-width: 900px){
+      nav ul{
+        position:fixed; inset-inline:0; top:var(--header-h); background:#ffffff;
+        border-top:1px solid var(--line); padding:16px 24px; display:none; flex-direction:column; gap:14px
+      }
+      nav ul.open{display:flex}
+      .hamb{display:inline-flex}
+      .nav-cta{display:none}
+    }
+
+    main{padding-top: calc(var(--header-h) + 14px)}
+
+    /* Hero */
+    .hero{padding: clamp(48px, 6vw, 90px) 0}
+    .hero .wrap{display:grid; gap:36px; grid-template-columns: 1.2fr .9fr; align-items:center}
+    .hero h1{font-size: clamp(2rem, 3.4vw, 3rem); line-height:1.12; margin:.2rem 0 .9rem}
+    .hero p{color:var(--muted); font-size: clamp(1rem, 1.4vw, 1.12rem)}
+    .hero .cta{display:flex; gap:12px; flex-wrap:wrap; margin-top:18px}
+
+    .hero .media{
+      aspect-ratio: 5/4; border-radius: 18px; overflow:hidden; border:1px solid var(--line);
+      box-shadow: var(--shadow);
+      background:
+        radial-gradient(60% 80% at 70% 30%, color-mix(in srgb, var(--fluorescent-cyan) 25%, #fff 75%), transparent 60%),
+        radial-gradient(60% 80% at 30% 70%, color-mix(in srgb, var(--slate-blue) 20%, #fff 80%), transparent 60%),
+        #ffffff;
+      position: relative;
+      padding: 12px;
+    }
+
+    /* Collage */
+    .collage{ position: relative; width: 100%; height: 100%; }
+    .collage .shot{
+      position: absolute; border-radius: 14px; overflow: hidden;
+      border: 1px solid var(--line); background: #fff; box-shadow: var(--shadow);
+      transition: transform .25s ease, box-shadow .25s ease;
+    }
+    .collage .shot img{ width: 100%; height: 100%; object-fit: cover; }
+    .collage .shot.a{ top: 4%; left: 3%; width: 56%; height: 58%; transform: rotate(-2deg); }
+    .collage .shot.b{ top: 10%; right: 3%; width: 46%; height: 52%; transform: rotate(1.6deg); }
+    .collage .shot.c{ bottom: 4%; left: 18%; width: 58%; height: 42%; transform: rotate(-0.6deg); }
+    .collage .shot:hover{ transform: translateY(-2px) scale(1.01); box-shadow: var(--shadow-hover); }
+    .eyebrow{display:flex; align-items:center; gap:.6rem}
+
+    @media (max-width: 900px){
+      .hero .wrap{grid-template-columns: 1fr}
+    }
+    @media (max-width: 700px){
+      .collage{ display: grid; grid-template-rows: 1fr 1fr 1fr; gap: 10px; }
+      .collage .shot{ position: static; width: 100%; height: auto; aspect-ratio: 16 / 10; transform: none; }
+    }
+
+    /* Sections */
+    section{padding:64px 0}
+    section h2{font-size: clamp(1.45rem, 2.4vw, 2rem); margin:0 0 18px}
+    .sub{color:var(--muted); margin:0 0 24px}
+
+    /* Collections */
+    .collections .item{
+      padding:18px;border:1px solid var(--line);border-radius:16px;
+      background:linear-gradient(180deg,#ffffff, #f7fbff); display:flex; gap:16px; align-items:center
+    }
+    .collections .icon{
+      width:44px;height:44px;border-radius:12px;display:grid;place-items:center;
+      background:linear-gradient(180deg,var(--light-cyan), #fff);border:1px solid var(--line);
+      color:#0f3a47
+    }
+
+    /* Catalog */
+    .catalog .grid{grid-template-columns: repeat(3, 1fr)}
+    @media (max-width:1000px){ .catalog .grid{grid-template-columns: repeat(2, 1fr)} }
+    @media (max-width:640px){ .catalog .grid{grid-template-columns: 1fr} }
+    .card .actions{display:flex; gap:10px; flex-wrap:wrap}
+    .price{color:#0f766e; font-weight:700}
+
+    /* Buy strip inside cards */
+    .buy{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin:.6rem 0 .2rem}
+    .buy .price{margin-right:auto}
+    .qty{ display:inline-flex; border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+    .qty button{ background:#fff; border:0; padding:.4rem .6rem; font-weight:800; cursor:pointer }
+    .qty input{ width:42px; border:0; text-align:center; outline:none }
+
+    /* Benefits */
+    .benefits .grid{grid-template-columns: repeat(3,1fr)}
+    @media (max-width:900px){ .benefits .grid{grid-template-columns:1fr} }
+    .benefit{padding:22px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+    .benefit h3{margin:.4rem 0 .4rem;font-size:1.05rem}
+
+    /* Reviews */
+    .reviews .grid{grid-template-columns: repeat(3,1fr)}
+    @media (max-width:900px){ .reviews .grid{grid-template-columns:1fr} }
+    .review{padding:22px;border:1px solid var(--line);border-radius:16px;background:#ffffff}
+    .stars{color:#f5b800;font-size:1.05rem}
+
+    /* FAQ */
+    details.faq{
+      border:1px solid var(--line);border-radius:14px;background:#ffffff;
+      padding:16px 18px
+    }
+    details.faq + details.faq{margin-top:12px}
+    details.faq summary{cursor:pointer;font-weight:800;list-style:none}
+    details.faq summary::-webkit-details-marker{display:none}
+    details.faq[open]{box-shadow: var(--shadow)}
+
+    /* Contact */
+    .contact .wrap{display:grid; gap:24px; grid-template-columns: 1.1fr .9fr}
+    @media (max-width: 900px){ .contact .wrap{grid-template-columns:1fr} }
+    form{
+      display:grid; gap:14px; background:#ffffff; border:1px solid var(--line); padding:20px; border-radius:16px
+    }
+    .row{display:grid; gap:12px; grid-template-columns:1fr 1fr}
+    @media (max-width:640px){ .row{grid-template-columns:1fr} }
+    input,select,textarea{
+      width:100%; padding:.85rem .95rem; border-radius:12px;
+      border:1px solid #dfe7f3; background:#fff; color:var(--text); outline:none; transition:.2s;
+    }
+    input:focus,select:focus,textarea:focus{border-color:#b7e6fb; box-shadow: var(--ring)}
+    textarea{min-height:120px; resize:vertical}
+    .contact-aside{
+      padding:20px;border:1px solid var(--line);border-radius:16px;background:var(--surface)
+    }
+
+    /* Footer */
+    footer{border-top:1px solid var(--line); padding:28px 0; color:#64748b; background:#fff}
+    .footer-grid{display:grid; gap:16px; grid-template-columns: 1fr auto}
+    @media (max-width:700px){ .footer-grid{grid-template-columns:1fr} }
+
+    /* Float WhatsApp */
+    .float-wa{
+      position:fixed; right:18px; bottom:18px; z-index:999;
+      border-radius:999px; padding:.9rem 1rem; font-weight:800; box-shadow: var(--shadow)
+    }
+
+    /* Subsection headings inside catalog */
+    .section-head{
+      display:flex; align-items:center; justify-content:space-between; gap:16px; margin: 22px 0 12px
+    }
+    .kicker{color:var(--slate-blue); letter-spacing:.12em; font-weight:900; text-transform:uppercase; font-size:.78rem}
+
+    /* Cart drawer */
+    .cart-drawer{ 
+      position:fixed; inset:0; display:grid; grid-template-columns:1fr; z-index:1001;
+      pointer-events:none; /* Anti-blur: disabled by default */
+    }
+    .cart-drawer.open{ pointer-events:auto; }
+    .cart-backdrop{ 
+      position:absolute; inset:0; 
+      background: rgba(15,23,42,.35); 
+      display:none; /* Anti-blur: hidden by default */
+    }
+    .cart-drawer.open .cart-backdrop{ display:block; }
+    .cart-panel{
+      position:absolute; right:0; top:0; height:100%; width:min(420px, 90vw);
+      background:#fff; border-left:1px solid var(--line); box-shadow: var(--shadow-hover);
+      display:grid; grid-template-rows:auto 1fr auto;
+      transform: translateX(100%); transition: transform .25s ease;
+    }
+    .cart-drawer.open .cart-panel{ transform: translateX(0); }
+    .cart-head{ display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-bottom:1px solid var(--line) }
+    .cart-items{ padding:12px 16px; overflow:auto }
+    .cart-item{ display:grid; grid-template-columns:72px 1fr auto; gap:12px; align-items:center; padding:10px 0; border-bottom:1px solid #f1f5fb }
+    .cart-item img{ width:72px; height:58px; object-fit:cover; border-radius:10px; border:1px solid var(--line) }
+    .cart-item .ti{ font-weight:800; margin:0 0 6px }
+    .cart-item .pr{ color:#0f766e; font-weight:700 }
+    .remove{ background:none; border:0; color:#9aa5b1; cursor:pointer }
+    .cart-foot{ padding:14px 16px; border-top:1px solid var(--line) }
+    .cart-row{ display:flex; align-items:center; justify-content:space-between }
+    .close{ background:none; border:0; font-size:1.2rem; cursor:pointer }
+    .badge{ display:inline-grid; place-items:center; min-width:20px; height:20px; padding:0 6px; font-size:.75rem; border-radius:999px; background:var(--non-photo-blue); color:#0b2740; border:1px solid var(--line) }
+
+    /* Ensure [hidden] works (Anti-blur critical) */
+    [hidden]{ display:none !important; }
+
+    /* Text rendering tweaks (optional) */
+    html, body{
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+  </style>
+</head>
+<body>
+  <div class="bar">
+    <small>Free shipping on orders over $150 · Made to order in 5–7 business days · Worldwide delivery</small>
+  </div>
+
+  <header class="site">
+    <div class="container nav">
+      <a class="brand" href="#home" aria-label="The Sign Lab - Home">
+        <span class="logo" aria-hidden="true"></span>
+        <span>The Sign Lab</span>
+      </a>
+
+      <button class="hamb" aria-label="Toggle menu" id="hamb">☰</button>
+
+      <nav aria-label="Primary navigation">
+        <ul id="menu">
+          <li><a href="#collections">Collections</a></li>
+          <li><a href="#catalog">Catalog</a></li>
+          <li><a href="#benefits">Benefits</a></li>
+          <li><a href="#reviews">Reviews</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#contact">Contact</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-cta">
+        <a class="btn ghost" href="#catalog">Browse</a>
+        <a class="btn" href="#contact">Start Your Design</a>
+        <button class="btn ghost" id="cartBtn" aria-haspopup="dialog" aria-controls="cartDrawer">
+          Cart <span id="cartCount" class="badge">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="home">
+    <section class="hero container" aria-labelledby="hero-title">
+      <div class="wrap">
+        <div>
+          <div class="eyebrow">
+            <span class="pill">Laser‑cut steel</span>
+            <span class="pill">Powder coated</span>
+            <span class="pill">Made to order</span>
+          </div>
+          <h1 id="hero-title">Personalized Metal Signs that Elevate Your Space</h1>
+          <p>From cozy coffee corners to storefront showpieces, we transform your ideas into refined, durable metal art. Bespoke sizes, fonts and finishes—engineered to last, designed to impress.</p>
+          <div class="cta">
+            <a class="btn" href="#catalog">Browse Catalog</a>
+            <a class="btn ghost" href="#contact">Request a Quote</a>
+            <a class="btn whatsapp" id="waHero" href="#" target="_blank" rel="noopener">WhatsApp Us</a>
+          </div>
+        </div>
+
+        <!-- Collage with your uploaded images -->
+        <div class="media" aria-hidden="true">
+          <div class="collage">
+            <figure class="shot a">
+              <img src="C:\sign2\data\download (16).png" alt="Round coffee sign — No Coffee No Workee" loading="eager" />
+            </figure>
+            <figure class="shot b">
+              <img src="C:\sign2\data\download (17).png" alt="Coffee Station framed metal sign" loading="eager" />
+            </figure>
+            <figure class="shot c">
+              <img src="C:\sign2\data\download (18).png" alt="Heartbeat coffee wall art" loading="eager" />
+            </figure>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="collections" class="collections">
+      <div class="container">
+        <h2>Curated Collections</h2>
+        <p class="sub">Explore our most requested themes. Every design can be customized with your text, dimensions and finish.</p>
+
+        <div class="grid" style="grid-template-columns: repeat(4,1fr)">
+          <div class="collections item">
+            <div class="icon" aria-hidden="true">🏠</div>
+            <div>
+              <div class="kicker">Home Decor</div>
+              <div class="sub">Coffee corner, kitchen art, wall phrases</div>
+            </div>
+          </div>
+          <div class="collections item">
+            <div class="icon" aria-hidden="true">🏢</div>
+            <div>
+              <div class="kicker">Business</div>
+              <div class="sub">Logos, storefronts, directional signs</div>
+            </div>
+          </div>
+          <div class="collections item">
+            <div class="icon" aria-hidden="true">💍</div>
+            <div>
+              <div class="kicker">Weddings & Events</div>
+              <div class="sub">Backdrops, welcome boards, table markers</div>
+            </div>
+          </div>
+          <div class="collections item">
+            <div class="icon" aria-hidden="true">🔤</div>
+            <div>
+              <div class="kicker">Names & Monograms</div>
+              <div class="sub">Family names, initials, nursery pieces</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="catalog" class="catalog">
+      <div class="container">
+        <h2>Catalog</h2>
+        <p class="sub">Buy directly. Fixed prices shown below. Add to cart and checkout via WhatsApp with your shipping info.</p>
+
+        <div class="section-head">
+          <div>
+            <div class="kicker">Home Decor</div>
+            <h3 style="margin:6px 0 0;font-size:1.25rem">Coffee Nook & Living Room Art</h3>
+          </div>
+          <a class="pill" href="#contact">Need a custom idea? →</a>
+        </div>
+
+        <div class="grid">
+          <!-- Product 1 -->
+          <article class="card" data-sku="ncw-round" data-title="No Coffee No Workee • Round Cutout" data-price="9.99" data-img="download%20(16).png">
+            <div class="media">
+              <img src="C:\sign2\data\download (16).png" alt="Round coffee sign that reads No Coffee No Workee mounted above countertop" loading="lazy" />
+            </div>
+            <div class="body">
+              <h4 class="title">No Coffee No Workee • Round Cutout</h4>
+              <p class="desc">Playful round sign for kitchens or office coffee stations. Powder‑coated steel, indoor/outdoor ready.</p>
+
+              <div class="buy">
+                <div class="price" data-price-el>$9.99</div>
+                <div class="qty">
+                  <button class="dec" type="button" aria-label="Decrease quantity">−</button>
+                  <input type="number" min="1" value="1" aria-label="Quantity"/>
+                  <button class="inc" type="button" aria-label="Increase quantity">+</button>
+                </div>
+                <button class="btn add-to-cart">Add to Cart</button>
+                <button class="btn ghost buy-now">Buy Now</button>
+              </div>
+
+              <div class="tag" style="margin-top:.35rem">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 6h11a3 3 0 1 1 0 6h-1a5 5 0 0 1-10 0H5V6h2Zm9 2v2h2a1 1 0 1 0 0-2h-2Z"/></svg>
+                Coffee Corner
+              </div>
+            </div>
+          </article>
+
+          <!-- Product 2 -->
+          <article class="card" data-sku="coffee-station" data-title="Coffee Station • Framed Panel" data-price="9.99" data-img="download%20(13).png">
+            <div class="media">
+              <img src="C:\sign2\data\download (17).png" alt="Black coffee station metal sign on office wall" loading="lazy" />
+            </div>
+            <div class="body">
+              <h4 class="title">Coffee Station • Framed Panel</h4>
+              <p class="desc">Rectangular panel with cup icon and lettering. Ideal above bar carts or break rooms.</p>
+
+              <div class="buy">
+                <div class="price" data-price-el>$9.99</div>
+                <div class="qty">
+                  <button class="dec" type="button" aria-label="Decrease quantity">−</button>
+                  <input type="number" min="1" value="1" aria-label="Quantity"/>
+                  <button class="inc" type="button" aria-label="Increase quantity">+</button>
+                </div>
+                <button class="btn add-to-cart">Add to Cart</button>
+                <button class="btn ghost buy-now">Buy Now</button>
+              </div>
+
+              <div class="tag" style="margin-top:.35rem">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 6h11a3 3 0 1 1 0 6h-1a5 5 0 0 1-10 0H5V6h2Zm9 2v2h2a1 1 0 1 0 0-2h-2Z"/></svg>
+                Coffee Corner
+              </div>
+            </div>
+          </article>
+
+          <!-- Product 3 -->
+          <article class="card" data-sku="coffee-heartbeat" data-title="Coffee Heartbeat • Linear Wall Art" data-price="9.99" data-img="download%20(14).png">
+            <div class="media">
+              <img src="C:\sign2\data\download (18).png" alt="Heartbeat wall art with coffee cup and heart above sofa" loading="lazy" />
+            </div>
+            <div class="body">
+              <h4 class="title">Coffee Heartbeat • Linear Wall Art</h4>
+              <p class="desc">Statement piece with heartbeat line, cup and heart. Sleek silhouette for living rooms and cafés.</p>
+
+              <div class="buy">
+                <div class="price" data-price-el>$9.99</div>
+                <div class="qty">
+                  <button class="dec" type="button" aria-label="Decrease quantity">−</button>
+                  <input type="number" min="1" value="1" aria-label="Quantity"/>
+                  <button class="inc" type="button" aria-label="Increase quantity">+</button>
+                </div>
+                <button class="btn add-to-cart">Add to Cart</button>
+                <button class="btn ghost buy-now">Buy Now</button>
+              </div>
+
+              <div class="tag" style="margin-top:.35rem">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 12s-2-4-6-4-6 4-6 4-2 4-6 4"/></svg>
+                Living Room
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="section-head" style="margin-top:36px">
+          <div>
+            <div class="kicker">Business</div>
+            <h3 style="margin:6px 0 0;font-size:1.25rem">Logos & Storefront Signage</h3>
+          </div>
+        </div>
+
+        <div class="grid">
+          <article class="card" data-sku="logo-floating" data-title="Custom Logo • Floating Mount" data-price="249" data-img="">
+            <div class="media">
+              <img alt="Cut metal logo sign for shop" loading="lazy" src='data:image/svg+xml;utf8,
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><rect width="800" height="600" fill="%23ffffff"/><rect x="80" y="90" width="640" height="420" rx="24" fill="none" stroke="%23dbe8f6" stroke-width="3"/><text x="50%" y="52%" fill="%231b2a45" font-family="Segoe UI, Roboto, Arial" font-weight="700" font-size="34" text-anchor="middle">Your Business Logo • Metal</text></svg>' />
+            </div>
+            <div class="body">
+              <h4 class="title">Custom Logo • Floating Mount</h4>
+              <p class="desc">Precision‑cut brand marks with stud mounts for a premium floating effect.</p>
+
+              <div class="buy">
+                <div class="price" data-price-el>$249.00</div>
+                <div class="qty">
+                  <button class="dec" type="button" aria-label="Decrease quantity">−</button>
+                  <input type="number" min="1" value="1" aria-label="Quantity"/>
+                  <button class="inc" type="button" aria-label="Increase quantity">+</button>
+                </div>
+                <button class="btn add-to-cart">Add to Cart</button>
+                <button class="btn ghost buy-now">Buy Now</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="card" data-sku="wayfinding" data-title="Directional & Wayfinding" data-price="159" data-img="">
+            <div class="media">
+              <img alt="Directional office sign placeholder" loading="lazy" src='data:image/svg+xml;utf8,
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><rect width="800" height="600" fill="%23ffffff"/><g stroke="%23dbe8f6" stroke-width="3" fill="none"><rect x="120" y="120" width="560" height="120" rx="18"/><rect x="120" y="280" width="560" height="200" rx="18"/></g><text x="50%" y="210" fill="%231b2a45" font-family="Segoe UI, Roboto, Arial" font-size="32" font-weight="700" text-anchor="middle">Office Directional</text></svg>' />
+            </div>
+            <div class="body">
+              <h4 class="title">Directional & Wayfinding</h4>
+              <p class="desc">Crisp, legible panels for offices and venues with icons and arrows.</p>
+
+              <div class="buy">
+                <div class="price" data-price-el>$159.00</div>
+                <div class="qty">
+                  <button class="dec" type="button" aria-label="Decrease quantity">−</button>
+                  <input type="number" min="1" value="1" aria-label="Quantity"/>
+                  <button class="inc" type="button" aria-label="Increase quantity">+</button>
+                </div>
+                <button class="btn add-to-cart">Add to Cart</button>
+                <button class="btn ghost buy-now">Buy Now</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="card" data-sku="backlit-letters" data-title="Backlit Letters" data-price="329" data-img="">
+            <div class="media">
+              <img alt="Backlit sign placeholder" loading="lazy" src='data:image/svg+xml;utf8,
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><defs><radialGradient id="r" cx="50%" cy="50%" r="60%"><stop offset="0" stop-color="%23d1f5ff"/><stop offset="1" stop-color="%23ffffff"/></radialGradient></defs><rect width="800" height="600" fill="url(%23r)"/><text x="50%" y="52%" fill="%231b2a45" font-family="Segoe UI, Roboto, Arial" font-weight="700" font-size="36" text-anchor="middle">Backlit Metal Letters</text></svg>' />
+            </div>
+            <div class="body">
+              <h4 class="title">Backlit Letters</h4>
+              <p class="desc">Halo‑lit letters with LED backing for dramatic storefront impact.</p>
+
+              <div class="buy">
+                <div class="price" data-price-el>$329.00</div>
+                <div class="qty">
+                  <button class="dec" type="button" aria-label="Decrease quantity">−</button>
+                  <input type="number" min="1" value="1" aria-label="Quantity"/>
+                  <button class="inc" type="button" aria-label="Increase quantity">+</button>
+                </div>
+                <button class="btn add-to-cart">Add to Cart</button>
+                <button class="btn ghost buy-now">Buy Now</button>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="benefits" class="benefits">
+      <div class="container">
+        <h2>Why Choose The Sign Lab</h2>
+        <p class="sub">Premium materials, thoughtful details, and white‑glove support from mockup to mounting.</p>
+
+        <div class="grid">
+          <div class="benefit">
+            <div class="pill">Precision</div>
+            <h3>Laser‑cut accuracy</h3>
+            <p class="sub">Industrial‑grade CNC and fiber lasers produce crisp lines and consistent spacing on every piece.</p>
+          </div>
+          <div class="benefit">
+            <div class="pill">Durability</div>
+            <h3>Outdoor‑ready finishes</h3>
+            <p class="sub">Powder coating resists rust, UV and scratches. Mount indoors or outdoors with confidence.</p>
+          </div>
+          <div class="benefit">
+            <div class="pill">Service</div>
+            <h3>Design support included</h3>
+            <p class="sub">We help with typography, proportions and mockups so your sign looks perfect in its space.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="reviews" class="reviews">
+      <div class="container">
+        <h2>Happy Customers</h2>
+        <p class="sub">Real words from makers, homeowners and café owners who trusted us with their spaces.</p>
+        <div class="grid">
+          <blockquote class="review">
+            <div class="stars">★★★★★</div>
+            <p>Flawless edges and a beautiful satin finish. The mounting template made installation a breeze.</p>
+            <footer class="sub">— Amelia R., café owner</footer>
+          </blockquote>
+          <blockquote class="review">
+            <div class="stars">★★★★★</div>
+            <p>They turned our hand‑drawn logo into metal art in one week. Great communication and care.</p>
+            <footer class="sub">— James P., studio manager</footer>
+          </blockquote>
+          <blockquote class="review">
+            <div class="stars">★★★★★</div>
+            <p>Our coffee nook looks complete now. The “No Coffee No Workee” sign gets compliments daily!</p>
+            <footer class="sub">— Priya S., home decor enthusiast</footer>
+          </blockquote>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq">
+      <div class="container">
+        <h2>Frequently Asked Questions</h2>
+        <p class="sub">Click to expand. If you don’t see your question, message us on WhatsApp—we reply fast.</p>
+
+        <details class="faq">
+          <summary>What materials do you use?</summary>
+          <p class="sub">We primarily use cold‑rolled steel from 1.5 to 3 mm thickness depending on the size, then apply a durable powder‑coated finish. Stainless steel and aluminum are available on request.</p>
+        </details>
+        <details class="faq">
+          <summary>Can I request a custom size or font?</summary>
+          <p class="sub">Absolutely. Send your wall measurements and reference photos. We’ll recommend dimensions and share a digital mockup for approval before cutting.</p>
+        </details>
+        <details class="faq">
+          <summary>How do the signs mount?</summary>
+          <p class="sub">Most pieces include pre‑drilled holes and optional stand‑off hardware. Some designs use hidden studs for a floating look. We provide a paper template for accurate placement.</p>
+        </details>
+        <details class="faq">
+          <summary>Lead times and shipping?</summary>
+          <p class="sub">Typical production is 5–7 business days after design approval. Shipping times vary by region; express options are available.</p>
+        </details>
+        <details class="faq">
+          <summary>Do you ship internationally?</summary>
+          <p class="sub">Yes, we ship worldwide. Packing is reinforced and corner‑protected to arrive safely.</p>
+        </details>
+      </div>
+    </section>
+
+    <section id="contact" class="contact">
+      <div class="container">
+        <h2>Contact & Quote</h2>
+        <p class="sub">Tell us what you have in mind and we’ll reply with a personalized quote and mockup.</p>
+
+        <div class="wrap">
+          <form id="quoteForm" aria-label="Quote request form">
+            <div class="row">
+              <div>
+                <label for="name">Name</label>
+                <input id="name" name="name" placeholder="Your full name" required />
+              </div>
+              <div>
+                <label for="email">Email</label>
+                <input id="email" type="email" name="email" placeholder="you@example.com" required />
+              </div>
+            </div>
+            <div class="row">
+              <div>
+                <label for="phone">Phone (optional)</label>
+                <input id="phone" name="phone" placeholder="+1 555 123 4567" />
+              </div>
+              <div>
+                <label for="type">Sign Type</label>
+                <select id="type" name="type">
+                  <option>Home Decor</option>
+                  <option>Business</option>
+                  <option>Weddings & Events</option>
+                  <option>Names & Monograms</option>
+                </select>
+              </div>
+            </div>
+            <div class="row">
+              <div>
+                <label for="size">Approximate Size</label>
+                <input id="size" name="size" placeholder="e.g., 32 in wide" />
+              </div>
+              <div>
+                <label for="finish">Finish</label>
+                <select id="finish" name="finish">
+                  <option>Matte Black</option>
+                  <option>Textured Black</option>
+                  <option>White</option>
+                  <option>Raw Steel (sealed)</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label for="message">Message</label>
+              <textarea id="message" name="message" placeholder="Tell us about your idea, placement, deadline…"></textarea>
+            </div>
+            <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center">
+              <button class="btn" type="submit">Send Request</button>
+              <a class="btn whatsapp" id="waContact" href="#" target="_blank" rel="noopener">Chat on WhatsApp</a>
+              <span class="pill">Avg. reply time: 1–3 hours</span>
+            </div>
+            <input type="hidden" id="fromProduct" />
+          </form>
+
+          <aside class="contact-aside">
+            <h3 style="margin:0 0 10px">What to include</h3>
+            <ul class="sub" style="margin:0; padding-left:18px">
+              <li>Text or logo file (SVG/PNG)</li>
+              <li>Desired width/height and finish</li>
+              <li>Photo of the wall or space (optional)</li>
+              <li>Deadline if time‑sensitive</li>
+            </ul>
+            <div style="height:14px"></div>
+            <p class="sub"><strong>Production:</strong> 5–7 business days. <strong>Warranty:</strong> 2 years against manufacturing defects.</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-grid">
+      <div>© <span id="year"></span> The Sign Lab · All rights reserved.</div>
+      <div><a class="pill" href="#home">Back to top ↑</a></div>
+    </div>
+  </footer>
+
+  <!-- Floating WhatsApp -->
+  <a class="btn whatsapp float-wa" id="waFloat" href="#" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">WhatsApp</a>
+
+  <!-- Cart Drawer -->
+  <div id="cartDrawer" class="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="cartTitle" hidden>
+    <div class="cart-panel">
+      <div class="cart-head">
+        <h3 id="cartTitle" style="margin:0">Your Cart</h3>
+        <button class="close" id="cartClose" aria-label="Close cart">✕</button>
+      </div>
+      <div id="cartItems" class="cart-items" aria-live="polite"></div>
+      <div class="cart-foot">
+        <div class="cart-row"><span>Subtotal</span><strong id="cartSubtotal">$0.00</strong></div>
+        <p class="sub" style="margin:8px 0 14px">Shipping calculated at checkout.</p>
+        <div style="display:flex; gap:10px; flex-wrap:wrap">
+          <button class="btn" id="checkoutBtn">Checkout</button>
+          <button class="btn ghost" id="clearCartBtn">Clear</button>
+        </div>
+      </div>
+    </div>
+    <div class="cart-backdrop" id="cartBackdrop" aria-hidden="true"></div>
+  </div>
+
+  <script>
+    // CONFIG
+    const WHATSAPP_NUMBER = '+1 234 567 8900'; // Replace with your number
+    const CURRENCY = 'USD'; // Change currency if needed (e.g., 'EUR', 'MXN', 'COP')
+
+    // Helpers
+    const waLink = (text='Hi! I have a question about your metal signs.') => {
+      const num = WHATSAPP_NUMBER.replace(/\D/g,'');
+      return `https://wa.me/${num}?text=${encodeURIComponent(text)}`;
+    };
+    const fmt = (n) => new Intl.NumberFormat('en-US', {style:'currency', currency: CURRENCY}).format(n);
+
+    // NAV
+    const hamb = document.getElementById('hamb');
+    const menu = document.getElementById('menu');
+    hamb?.addEventListener('click', () => menu.classList.toggle('open'));
+    menu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => menu.classList.remove('open')));
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // WhatsApp links
+    const waHero = document.getElementById('waHero');
+    const waContact = document.getElementById('waContact');
+    const waFloat = document.getElementById('waFloat');
+    if (waHero) waHero.href = waLink();
+    if (waContact) waContact.href = waLink('Hello! I would like to discuss a custom metal sign.');
+    if (waFloat) waFloat.href = waLink();
+
+    // Reveal animation
+    const reveal = new IntersectionObserver((entries)=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){
+          entry.target.animate(
+            [{opacity:0, transform:'translateY(10px)'},{opacity:1, transform:'translateY(0)'}],
+            {duration:450, easing:'ease-out'}
+          );
+          reveal.unobserve(entry.target);
+        }
+      });
+    }, {threshold:.12});
+    document.querySelectorAll('section, .card, .benefit, .review, details.faq').forEach(el=>reveal.observe(el));
+
+    // CART LOGIC
+    const cartBtn = document.getElementById('cartBtn');
+    const cartDrawer = document.getElementById('cartDrawer');
+    const cartClose = document.getElementById('cartClose');
+    const cartBackdrop = document.getElementById('cartBackdrop');
+    const cartItemsEl = document.getElementById('cartItems');
+    const cartSubtotalEl = document.getElementById('cartSubtotal');
+    const cartCountEl = document.getElementById('cartCount');
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    const clearCartBtn = document.getElementById('clearCartBtn');
+
+    let cart = [];
+
+    const loadCart = () => {
+      try { cart = JSON.parse(localStorage.getItem('tsl_cart') || '[]'); } catch { cart = []; }
+      updateCartUI();
+    };
+    const saveCart = () => localStorage.setItem('tsl_cart', JSON.stringify(cart));
+
+    const openCart = () => {
+      cartDrawer.hidden = false;            // ensure visible
+      requestAnimationFrame(()=>cartDrawer.classList.add('open')); // then slide in
+    };
+    const closeCart = () => {
+      cartDrawer.classList.remove('open');
+      setTimeout(()=>cartDrawer.hidden = true, 250); // hide after transition
+    };
+
+    const subtotal = () => cart.reduce((s,i)=> s + i.price * i.qty, 0);
+
+    const updateCartUI = () => {
+      // Items
+      cartItemsEl.innerHTML = '';
+      if(cart.length === 0){
+        cartItemsEl.innerHTML = '<p class="sub">Your cart is empty.</p>';
+      } else {
+        cart.forEach(i=>{
+          const item = document.createElement('div');
+          item.className = 'cart-item';
+          item.dataset.sku = i.sku;
+          item.innerHTML = `
+            <img src="${i.img || 'data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 120 90%22><rect width=%22120%22 height=%2290%22 fill=%22%23eef8ff%22/></svg>'}" alt="">
+            <div>
+              <div class="ti">${i.title}</div>
+              <div class="sub" style="margin-bottom:8px">Price: ${fmt(i.price)}</div>
+              <div class="qty">
+                <button class="dec" type="button" aria-label="Decrease quantity">−</button>
+                <input type="number" min="1" value="${i.qty}" aria-label="Quantity for ${i.title}"/>
+                <button class="inc" type="button" aria-label="Increase quantity">+</button>
+              </div>
+            </div>
+            <div style="text-align:right">
+              <div class="pr">${fmt(i.price * i.qty)}</div>
+              <button class="remove" aria-label="Remove ${i.title}">Remove</button>
+            </div>
+          `;
+          cartItemsEl.appendChild(item);
+        });
+      }
+      // Subtotal and badge
+      cartSubtotalEl.textContent = fmt(subtotal());
+      const count = cart.reduce((s,i)=> s + i.qty, 0);
+      cartCountEl.textContent = count;
+      saveCart();
+    };
+
+    const addToCart = (sku, title, price, qty, img) => {
+      qty = Math.max(1, parseInt(qty || 1, 10));
+      const existing = cart.find(i => i.sku === sku);
+      if(existing){ existing.qty += qty; }
+      else { cart.push({sku, title, price: Number(price), qty, img}); }
+      updateCartUI();
+    };
+
+    const setQty = (sku, newQty) => {
+      const item = cart.find(i=> i.sku === sku);
+      if(!item) return;
+      item.qty = Math.max(1, parseInt(newQty || 1, 10));
+      updateCartUI();
+    };
+
+    const removeItem = (sku) => {
+      cart = cart.filter(i=> i.sku !== sku);
+      updateCartUI();
+    };
+
+    // Bind product cards
+    document.querySelectorAll('.catalog .card').forEach(card=>{
+      const sku = card.dataset.sku;
+      const title = card.dataset.title;
+      const price = Number(card.dataset.price);
+      const img = card.dataset.img || (card.querySelector('.media img')?.getAttribute('src') || '');
+
+      // Qty controls
+      const qtyWrap = card.querySelector('.qty');
+      const qtyInput = qtyWrap?.querySelector('input');
+      qtyWrap?.querySelector('.inc')?.addEventListener('click', ()=> qtyInput.value = String((parseInt(qtyInput.value || '1',10) || 1) + 1));
+      qtyWrap?.querySelector('.dec')?.addEventListener('click', ()=> qtyInput.value = String(Math.max(1, (parseInt(qtyInput.value || '1',10) || 1) - 1)));
+
+      // Add to cart
+      card.querySelector('.add-to-cart')?.addEventListener('click', ()=>{
+        const qty = parseInt(qtyInput?.value || '1', 10) || 1;
+        addToCart(sku, title, price, qty, img);
+      });
+
+      // Buy now
+      card.querySelector('.buy-now')?.addEventListener('click', ()=>{
+        const qty = parseInt(qtyInput?.value || '1', 10) || 1;
+        addToCart(sku, title, price, qty, img);
+        openCart();
+      });
+
+      // Price format (ensure correct currency)
+      const priceEl = card.querySelector('[data-price-el]');
+      if(priceEl) priceEl.textContent = fmt(price);
+    });
+
+    // Cart drawer events
+    cartBtn?.addEventListener('click', openCart);
+    cartClose?.addEventListener('click', closeCart);
+    cartBackdrop?.addEventListener('click', closeCart);
+
+    // Delegate cart item controls
+    cartItemsEl.addEventListener('click', (e)=>{
+      const el = e.target;
+      const itemEl = el.closest('.cart-item');
+      if(!itemEl) return;
+      const sku = itemEl.dataset.sku;
+      if(el.classList.contains('remove')) removeItem(sku);
+      if(el.classList.contains('inc')){
+        const inp = itemEl.querySelector('input'); inp.value = String((parseInt(inp.value||'1',10)||1)+1);
+        setQty(sku, inp.value);
+      }
+      if(el.classList.contains('dec')){
+        const inp = itemEl.querySelector('input'); inp.value = String(Math.max(1, (parseInt(inp.value||'1',10)||1)-1));
+        setQty(sku, inp.value);
+      }
+    });
+
+    cartItemsEl.addEventListener('change', (e)=>{
+      const inp = e.target;
+      const itemEl = inp.closest('.cart-item');
+      if(!itemEl) return;
+      if(inp.tagName === 'INPUT'){
+        setQty(itemEl.dataset.sku, inp.value);
+      }
+    });
+
+    // Clear cart
+    clearCartBtn?.addEventListener('click', ()=>{
+      if(confirm('Clear the cart?')){ cart = []; updateCartUI(); }
+    });
+
+    // Checkout via WhatsApp (order summary + total)
+    checkoutBtn?.addEventListener('click', ()=>{
+      if(!cart.length){ alert('Your cart is empty.'); return; }
+      const lines = cart.map(i => `• ${i.title}  x${i.qty}  = ${fmt(i.price * i.qty)}`).join('\n');
+      const total = fmt(subtotal());
+      const text = `Order — The Sign Lab\n\n${lines}\n\nSubtotal: ${total}\n\nShipping info:\nName:\nAddress:\nCity:\nPhone:\nEmail:\n\nNotes:`;
+      window.open(waLink(text), '_blank');
+    });
+
+    // Init
+    loadCart();
+
+    // QUOTE FORM (kept as-is)
+    const messageEl = document.getElementById('message');
+    const fromProductEl = document.getElementById('fromProduct');
+    const form = document.getElementById('quoteForm');
+    form?.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const msg = `New quote request
+Name: ${name}
+Email: ${document.getElementById('email').value}
+Phone: ${document.getElementById('phone').value}
+Type: ${document.getElementById('type').value}
+Size: ${document.getElementById('size').value}
+Finish: ${document.getElementById('finish').value}
+From product: ${fromProductEl.value || '(form)'}
+Message:
+${messageEl.value}`;
+      alert('Thank you! Your request has been prepared. We will reply shortly.');
+      window.open(waLink(msg), '_blank');
+      form.reset();
+      fromProductEl.value = '';
+    });
+  </script>
+</body>
+</html>
